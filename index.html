@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PaintUp</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABG0lEQVRYhe3WwQ3CMAwF0M9m6zH9+0b0ZlTWytwiJxQoxcdRrQy+Zo5MSq0Cj2SA5yD4B3gH8h9wXUKSZhAiiwA8qJ0glQBMpiwOWhbL70aRJEj4vruWUL+v5X7O43zXfXT5XgH0D+dP1Xr6p9It1GEEhJ2GG4QU1nCGRFbFUIYeW0MtxhhC4KZCGeMCGmEc2c7kQQovwhiKZgD1xhx9hBxlYQT2EkHwXkFkOBV5HeKq1T6PLzX2j4N5/H1cAv0gTw4CuhqGQYqgZxwF6mEk4CgAAABJRU5ErkJggg==">
+<style>
+:root{
+  --bg:#e0e5ec;
+  --card:#f0f3f7;
+  --shadow-light:rgba(255,255,255,0.7);
+  --shadow-dark:rgba(0,0,0,0.15);
+  --text:#333;
+  --accent:#4a90e2;
+  --border:#d1d9e6;
+}
+[data-theme="dark"]{
+  --bg:#1f2025;
+  --card:#2c2d33;
+  --shadow-light:rgba(255,255,255,0.1);
+  --shadow-dark:rgba(0,0,0,0.7);
+  --text:#e0e0e0;
+  --accent:#4a90e2;
+  --border:#444;
+}
+*{box-sizing:border-box;font-family:'Segoe UI',Tahoma,sans-serif;margin:0;padding:0;}
+body{
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 15px;
+  transition: background 0.3s, color 0.3s;
+}
+.card{
+  background: var(--card);
+  border-radius: 25px;
+  padding: 30px 25px;
+  max-width: 720px;
+  width: 100%;
+  box-shadow: 8px 8px 20px var(--shadow-dark), -8px -8px 20px var(--shadow-light);
+  position: relative;
+  transition: all 0.3s;
+}
+h1{
+  text-align:center;
+  margin-bottom:25px;
+  font-size:2em;
+  color: var(--accent);
+}
+
+/* Dark mode toggle with sun/moon */
+.switch{
+  position:absolute;
+  top:20px;
+  right:20px;
+  display:inline-block;
+  width:60px;
+  height:34px;
+}
+.switch input{
+  opacity:0;
+  width:0;
+  height:0;
+}
+.slider{
+  position:absolute;
+  cursor:pointer;
+  top:0; left:0; right:0; bottom:0;
+  background:#ccc;
+  border-radius:34px;
+  transition:0.4s;
+  box-shadow:4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+}
+.slider:before{
+  position:absolute;
+  content:"☀️";
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:16px;
+  height:26px;
+  width:26px;
+  left:4px;
+  bottom:4px;
+  background:white;
+  border-radius:50%;
+  transition:0.4s;
+  box-shadow:2px 2px 5px rgba(0,0,0,0.3);
+}
+input:checked + .slider{
+  background:var(--accent);
+}
+input:checked + .slider:before{
+  transform:translateX(26px);
+  content:"🌙";
+}
+
+/* Input groups with icons */
+.input-group{
+  display:flex;
+  flex-wrap:wrap;
+  gap:15px;
+  margin-bottom:20px;
+}
+.input-item{
+  display:flex;
+  flex-direction:column;
+  flex:1 1 150px;
+  position:relative;
+}
+.input-item label{
+  font-weight:bold;
+  margin-bottom:5px;
+}
+.input-item input, .input-item select, button{
+  padding:10px 10px 10px 35px; /* space for icon */
+  border-radius:15px;
+  border:none;
+  outline:none;
+  background: var(--card);
+  box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+  transition: all 0.3s;
+}
+.input-item input:focus, .input-item select:focus, button:hover{
+  box-shadow: inset 2px 2px 6px var(--shadow-dark), inset -2px -2px 6px var(--shadow-light);
+}
+/* Icons inside inputs */
+.input-item .icon{
+  position:absolute;
+  left:10px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:16px;
+  pointer-events:none;
+  color: var(--accent);
+}
+button{
+  cursor:pointer;
+  font-size:16px;
+  flex:1 1 140px;
+}
+.result{
+  margin-top:20px;
+  font-weight:bold;
+  font-size:16px;
+  word-wrap:break-word;
+  text-align:left;
+}
+footer{
+  margin-top:10px;
+  font-size:12px;
+  text-align:center;
+  color:var(--accent);
+}
+@media(max-width:600px){
+  .input-item{flex:1 1 100%;}
+  .buttons button{flex:1 1 100%;}
+}
+</style>
+</head>
+<body data-theme="light">
+<div class="card">
+  <!-- Dark Mode Toggle -->
+  <label class="switch">
+    <input type="checkbox" id="themeToggle">
+    <span class="slider"></span>
+  </label>
+
+  <h1>PaintUp</h1>
+
+  <!-- Rooms Section -->
+  <div id="roomsContainer" class="input-group">
+    <div class="input-item">
+      <span class="icon">📏</span>
+      <label>Area (sq.ft)</label>
+      <input type="number" class="area" placeholder="Area" min="0">
+    </div>
+    <div class="input-item">
+      <span class="icon">💰</span>
+      <label>Discount (%)</label>
+      <input type="number" class="discount" value="0" min="0" max="100">
+    </div>
+    <div class="input-item">
+      <span class="icon">🎨</span>
+      <label>Paint Type</label>
+      <select class="paintTypeRoom">
+        <option value="50">Standard ₹50/sq.ft</option>
+        <option value="80">Premium ₹80/sq.ft</option>
+        <option value="120">Luxury ₹120/sq.ft</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="input-group buttons">
+    <button onclick="addRoom()">+ Add Room</button>
+    <button onclick="removeRoom()">- Remove Room</button>
+    <button onclick="clearAll()">Clear All</button>
+    <button onclick="exportPDF()">Export PDF</button>
+  </div>
+
+  <!-- Extra Inputs -->
+  <div class="input-group extra-inputs">
+    <div class="input-item">
+      <span class="icon">🛠️</span>
+      <label>Labor Charge per sq.ft</label>
+      <input type="number" id="labor" value="20">
+    </div>
+    <div class="input-item">
+      <span class="icon">🧾</span>
+      <label>GST (%)</label>
+      <input type="number" id="tax" value="18">
+    </div>
+    <div class="input-item">
+      <span class="icon">🖌️</span>
+      <label>Paint Coverage per Liter</label>
+      <input type="number" id="coverage" value="100">
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div id="result" class="result">Total Painting Cost: ₹0.00</div>
+  <footer>© PaintUp 2025</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  const roomsContainer=document.getElementById('roomsContainer');
+  const laborInput=document.getElementById('labor');
+  const taxInput=document.getElementById('tax');
+  const coverageInput=document.getElementById('coverage');
+  const resultDiv=document.getElementById('result');
+  const themeToggle=document.getElementById('themeToggle');
+
+  themeToggle.addEventListener('change',()=>document.body.setAttribute('data-theme',themeToggle.checked?'dark':'light'));
+
+  function attachListeners(){
+    document.querySelectorAll('.area').forEach(a=>a.addEventListener('input',calculateCost));
+    document.querySelectorAll('.discount').forEach(d=>d.addEventListener('input',calculateCost));
+    document.querySelectorAll('.paintTypeRoom').forEach(p=>p.addEventListener('input',calculateCost));
+  }
+
+  function addRoom(){
+    const roomDiv=document.createElement('div');
+    roomDiv.classList.add('input-item');
+    roomDiv.innerHTML=`
+      <span class="icon">📏</span>
+      <label>Area (sq.ft)</label>
+      <input type="number" class="area" placeholder="Area" min="0">
+      <span class="icon">💰</span>
+      <label>Discount (%)</label>
+      <input type="number" class="discount" value="0" min="0" max="100">
+      <span class="icon">🎨</span>
+      <label>Paint Type</label>
+      <select class="paintTypeRoom">
+        <option value="50">Standard ₹50/sq.ft</option>
+        <option value="80">Premium ₹80/sq.ft</option>
+        <option value="120">Luxury ₹120/sq.ft</option>
+      </select>`;
+    roomsContainer.appendChild(roomDiv);
+    attachListeners();
+    calculateCost();
+  }
+
+  function removeRoom(){
+    const items=document.querySelectorAll('#roomsContainer .input-item');
+    if(items.length>1) roomsContainer.removeChild(items[items.length-1]);
+    calculateCost();
+  }
+
+  function clearAll(){
+    document.querySelectorAll('.area').forEach(a=>a.value='');
+    document.querySelectorAll('.discount').forEach(d=>d.value=0);
+    document.querySelectorAll('.paintTypeRoom').forEach(p=>p.selectedIndex=0);
+    laborInput.value=20;
+    taxInput.value=18;
+    coverageInput.value=100;
+    calculateCost();
+  }
+
+  function calculateCost(){
+    const areas=document.querySelectorAll('.area');
+    const discounts=document.querySelectorAll('.discount');
+    const paints=document.querySelectorAll('.paintTypeRoom');
+    const labor=parseFloat(laborInput.value)||0;
+    const gst=parseFloat(taxInput.value)||0;
+    const coverage=parseFloat(coverageInput.value)||100;
+    let totalMat=0,totalLab=0,totalLiters=0;
+    areas.forEach((a,i)=>{
+      const area=parseFloat(a.value)||0;
+      const discount=parseFloat(discounts[i].value)||0;
+      const rate=parseFloat(paints[i].value)||50;
+      const netArea=area*(1-discount/100);
+      totalMat+=netArea*rate;
+      totalLab+=netArea*labor;
+      totalLiters+=netArea/coverage;
+    });
+    const totalCost=(totalMat+totalLab)*(1+gst/100);
+    const roundedLiters=Math.ceil(totalLiters);
+    resultDiv.innerHTML=`
+      Total Painting Cost: ₹${totalCost.toFixed(2)}<br>
+      Material: ₹${totalMat.toFixed(2)}, Labor: ₹${totalLab.toFixed(2)}, GST: ₹${((totalMat+totalLab)*gst/100).toFixed(2)}<br>
+      Total Paint Required: ${roundedLiters} liters
+    `;
+  }
+
+  function exportPDF(){
+    const { jsPDF }=window.jspdf;
+    const doc=new jsPDF();
+    doc.setFontSize(14);
+    doc.text("Painting Estimate",20,20);
+    doc.setFontSize(12);
+    doc.text(resultDiv.innerText,20,30);
+    doc.save("painting_estimate.pdf");
+  }
+
+  attachListeners();
+  laborInput.addEventListener('input',calculateCost);
+  taxInput.addEventListener('input',calculateCost);
+  coverageInput.addEventListener('input',calculateCost);
+  calculateCost();
+
+  window.addRoom=addRoom;
+  window.removeRoom=removeRoom;
+  window.clearAll=clearAll;
+  window.exportPDF=exportPDF;
+});
+</script>
+</body>
+</html>
