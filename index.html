@@ -30,7 +30,7 @@ input:checked + .slider:before{transform:translateX(26px); content:"🌙";}
 .room-card input, .room-card select{flex:1 1 150px; padding:10px; border:none; outline:none; border-radius:12px; background:var(--card); color: var(--text); box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);}
 .room-card .delete-btn{position:absolute; top:5px; right:5px; background:var(--card); border:none; border-radius:50%; padding:5px 8px; cursor:pointer; box-shadow: 2px 2px 6px var(--shadow-dark), -2px -2px 6px var(--shadow-light); font-weight:bold; color:red; transition:0.2s;}
 .room-card .delete-btn:hover{box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);}
-.roomTotal{width:100%; text-align:right; font-weight:bold; margin-top:5px;}
+.roomTotal, .roomLiters{width:100%; text-align:right; font-weight:bold; margin-top:5px;}
 .input-group{display:flex; flex-wrap:wrap; gap:15px; margin-bottom:20px;}
 .input-label{flex:1 1 100%; font-weight:bold;}
 button.main-btn{padding:12px; border-radius:25px; border:none; background: var(--card); box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light); cursor:pointer; font-size:16px; flex:1 1 140px; transition:all 0.3s;}
@@ -98,6 +98,7 @@ footer{margin-top:10px; font-size:12px; text-align:center; color:var(--accent);}
         <option value="120">Luxury</option>
       </select>
 
+      <span class="roomLiters" name="roomLiters">Liters Needed: 0</span>
       <span class="roomTotal" name="roomTotal">Room Cost: 0</span>
     </div>
   </div>
@@ -121,6 +122,7 @@ footer{margin-top:10px; font-size:12px; text-align:center; color:var(--accent);}
   </div>
 
   <div id="result" class="result">Total Painting Cost: 0</div>
+  <div id="totalLiters" class="result">Total Liters Needed: 0</div>
   <footer id="footer">© PaintUp 2025</footer>
 </div>
 
@@ -153,6 +155,7 @@ function addRoom(){
       <option value="120">Luxury</option>
     </select>
 
+    <span class="roomLiters" name="roomLiters">Liters Needed: 0</span>
     <span class="roomTotal" name="roomTotal">Room Cost: 0</span>
   `;
   container.appendChild(room);
@@ -186,26 +189,38 @@ function resetDefaults(){
   calculateCost();
 }
 
-// Calculate total cost and room-wise cost
+// Calculate total cost, liters per room, total liters
 function calculateCost(){
   const labor = parseFloat(document.getElementById('labor').value) || 0;
   const gst = parseFloat(document.getElementById('tax').value) || 0;
   const coverage = parseFloat(document.getElementById('coverage').value) || 1;
 
   let total = 0;
+  let totalLiters = 0;
+
   document.querySelectorAll('#roomsContainer .room-card').forEach(room=>{
     const area = parseFloat(room.querySelector('.area').value) || 0;
     const discount = parseFloat(room.querySelector('.discount').value) || 0;
     const paintCost = parseFloat(room.querySelector('.paintTypeRoom').value) || 0;
-    let roomCost = ((area / coverage) * paintCost) + (area * labor);
+
+    const litersNeeded = area / coverage;
+    totalLiters += litersNeeded;
+
+    let roomCost = (litersNeeded * paintCost) + (area * labor);
     roomCost -= roomCost * (discount/100);
     total += roomCost;
+
     const roomTotalSpan = room.querySelector('.roomTotal');
     if(roomTotalSpan) roomTotalSpan.innerText = 'Room Cost: ' + roomCost.toFixed(2);
+
+    const roomLitersSpan = room.querySelector('.roomLiters');
+    if(roomLitersSpan) roomLitersSpan.innerText = 'Liters Needed: ' + litersNeeded.toFixed(2);
   });
 
   total += total * (gst/100);
+
   document.getElementById('result').innerText = 'Total Painting Cost: ' + total.toFixed(2);
+  document.getElementById('totalLiters').innerText = 'Total Liters Needed: ' + totalLiters.toFixed(2);
 }
 
 // Recalculate on input change
@@ -220,10 +235,12 @@ function exportPDF(){
     const area = room.querySelector('.area').value;
     const discount = room.querySelector('.discount').value;
     const paint = room.querySelector('.paintTypeRoom').value;
+    const liters = room.querySelector('.roomLiters').innerText;
     const cost = room.querySelector('.roomTotal').innerText;
-    doc.text(`Room ${i+1}: Area=${area}, Discount=${discount}, PaintType=${paint}, ${cost}`, 10, 20+(i*10));
+    doc.text(`Room ${i+1}: Area=${area}, Discount=${discount}, PaintType=${paint}, ${liters}, ${cost}`, 10, 20+(i*10));
   });
   doc.text(document.getElementById('result').innerText, 10, 30+(document.querySelectorAll('#roomsContainer .room-card').length*10));
+  doc.text(document.getElementById('totalLiters').innerText, 10, 35+(document.querySelectorAll('#roomsContainer .room-card').length*10));
   doc.save('PaintUp_Cost.pdf');
 }
 </script>
