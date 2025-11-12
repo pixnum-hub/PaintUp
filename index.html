@@ -4,332 +4,203 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PaintUp</title>
-<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABG0lEQVRYhe3WwQ3CMAwF0M9m6zH9+0b0ZlTWytwiJxQoxcdRrQy+Zo5MSq0Cj2SA5yD4B3gH8h9wXUKSZhAiiwA8qJ0glQBMpiwOWhbL70aRJEj4vruWUL+v5X7O43zXfXT5XgH0D+dP1Xr6p9It1GEEhJ2GG4QU1nCGRFbFUIYeW0MtxhhC4KZCGeMCGmEc2c7kQQovwhiKZgD1xhx9hBxlYQT2EkHwXkFkOBV5HeKq1T6PLzX2j4N5/H1cAv0gTw4CuhqGQYqgZxwF6mEk4CgAAABJRU5ErkJggg==">
 <style>
 :root{
-  --bg:#e0e5ec;
-  --card:#f0f3f7;
-  --shadow-light:rgba(255,255,255,0.7);
-  --shadow-dark:rgba(0,0,0,0.15);
-  --text:#333;
-  --accent:#4a90e2;
-  --border:#d1d9e6;
+  --bg:#e0e5ec; --card:#f0f3f7;
+  --shadow-light:rgba(255,255,255,0.7); --shadow-dark:rgba(0,0,0,0.15);
+  --text:#333; --accent:#4a90e2; --border:#d1d9e6;
 }
 [data-theme="dark"]{
-  --bg:#1f2025;
-  --card:#2c2d33;
-  --shadow-light:rgba(255,255,255,0.1);
-  --shadow-dark:rgba(0,0,0,0.7);
-  --text:#e0e0e0;
-  --accent:#4a90e2;
-  --border:#444;
+  --bg:#1f2025; --card:#2c2d33;
+  --shadow-light:rgba(255,255,255,0.1); --shadow-dark:rgba(0,0,0,0.7);
+  --text:#e0e0e0; --accent:#4a90e2; --border:#444;
 }
 *{box-sizing:border-box;font-family:'Segoe UI',Tahoma,sans-serif;margin:0;padding:0;}
-body{
-  background: var(--bg);
-  color: var(--text);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 15px;
-  transition: background 0.3s, color 0.3s;
-}
-.card{
-  background: var(--card);
-  border-radius: 25px;
-  padding: 30px 25px;
-  max-width: 720px;
-  width: 100%;
-  box-shadow: 8px 8px 20px var(--shadow-dark), -8px -8px 20px var(--shadow-light);
-  position: relative;
-  transition: all 0.3s;
-}
-h1{
-  text-align:center;
-  margin-bottom:25px;
-  font-size:2em;
-  color: var(--accent);
-}
+body{background: var(--bg); color: var(--text); display:flex; justify-content:center; align-items:center; min-height:100vh; padding:15px; transition:0.3s;}
+.card{background: var(--card); border-radius:25px; padding:30px 25px; max-width:800px; width:100%; box-shadow:8px 8px 20px var(--shadow-dark), -8px -8px 20px var(--shadow-light); position:relative; transition:all 0.3s; border:2px solid var(--border);}
+h1{text-align:center; margin-bottom:20px; font-size:2em; color: var(--accent);}
+.switch{position:absolute; top:20px; right:20px; display:inline-block; width:60px; height:34px;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{position:absolute; cursor:pointer; top:0;left:0;right:0;bottom:0; background:#ccc; border-radius:34px; transition:0.4s; box-shadow:4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);}
+.slider:before{position:absolute; content:"☀️"; display:flex; justify-content:center; align-items:center; font-size:16px; height:26px; width:26px; left:4px; bottom:4px; background:white; border-radius:50%; transition:0.4s; box-shadow:2px 2px 5px rgba(0,0,0,0.3);}
+input:checked + .slider{background:var(--accent);}
+input:checked + .slider:before{transform:translateX(26px); content:"🌙";}
 
-/* Dark mode toggle with sun/moon */
-.switch{
-  position:absolute;
-  top:20px;
-  right:20px;
-  display:inline-block;
-  width:60px;
-  height:34px;
-}
-.switch input{
-  opacity:0;
-  width:0;
-  height:0;
-}
-.slider{
-  position:absolute;
-  cursor:pointer;
-  top:0; left:0; right:0; bottom:0;
-  background:#ccc;
-  border-radius:34px;
-  transition:0.4s;
-  box-shadow:4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
-}
-.slider:before{
-  position:absolute;
-  content:"☀️";
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:16px;
-  height:26px;
-  width:26px;
-  left:4px;
-  bottom:4px;
-  background:white;
-  border-radius:50%;
-  transition:0.4s;
-  box-shadow:2px 2px 5px rgba(0,0,0,0.3);
-}
-input:checked + .slider{
-  background:var(--accent);
-}
-input:checked + .slider:before{
-  transform:translateX(26px);
-  content:"🌙";
-}
-
-/* Input groups with icons */
-.input-group{
-  display:flex;
-  flex-wrap:wrap;
-  gap:15px;
-  margin-bottom:20px;
-}
-.input-item{
-  display:flex;
-  flex-direction:column;
-  flex:1 1 150px;
-  position:relative;
-}
-.input-item label{
-  font-weight:bold;
-  margin-bottom:5px;
-}
-.input-item input, .input-item select, button{
-  padding:10px 10px 10px 35px; /* space for icon */
-  border-radius:15px;
-  border:none;
-  outline:none;
-  background: var(--card);
-  box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
-  transition: all 0.3s;
-}
-.input-item input:focus, .input-item select:focus, button:hover{
-  box-shadow: inset 2px 2px 6px var(--shadow-dark), inset -2px -2px 6px var(--shadow-light);
-}
-/* Icons inside inputs */
-.input-item .icon{
-  position:absolute;
-  left:10px;
-  top:50%;
-  transform:translateY(-50%);
-  font-size:16px;
-  pointer-events:none;
-  color: var(--accent);
-}
-button{
-  cursor:pointer;
-  font-size:16px;
-  flex:1 1 140px;
-}
-.result{
-  margin-top:20px;
-  font-weight:bold;
-  font-size:16px;
-  word-wrap:break-word;
-  text-align:left;
-}
-footer{
-  margin-top:10px;
-  font-size:12px;
-  text-align:center;
-  color:var(--accent);
-}
-@media(max-width:600px){
-  .input-item{flex:1 1 100%;}
-  .buttons button{flex:1 1 100%;}
-}
+.room-card{background: var(--card); border-radius:20px; padding:15px; display:flex; gap:15px; flex-wrap:wrap; margin-bottom:15px; box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light); position:relative;}
+.room-card input, .room-card select{flex:1 1 150px; padding:10px; border:none; outline:none; border-radius:12px; background:var(--card); color: var(--text); box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);}
+.room-card .delete-btn{position:absolute; top:5px; right:5px; background:var(--card); border:none; border-radius:50%; padding:5px 8px; cursor:pointer; box-shadow: 2px 2px 6px var(--shadow-dark), -2px -2px 6px var(--shadow-light); font-weight:bold; color:red; transition:0.2s;}
+.room-card .delete-btn:hover{box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);}
+.roomTotal{width:100%; text-align:right; font-weight:bold;}
+.input-group{display:flex; flex-wrap:wrap; gap:15px; margin-bottom:20px;}
+button.main-btn{padding:12px; border-radius:25px; border:none; background: var(--card); box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light); cursor:pointer; font-size:16px; flex:1 1 140px; transition:all 0.3s;}
+button.main-btn:hover{box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);}
+.result{margin-top:20px; font-weight:bold; font-size:16px; word-wrap:break-word;}
+footer{margin-top:10px; font-size:12px; text-align:center; color:var(--accent);}
+@media(max-width:600px){.room-card input, .room-card select{flex:1 1 100%;} button.main-btn{flex:1 1 100%;}}
 </style>
 </head>
 <body data-theme="light">
 <div class="card">
-  <!-- Dark Mode Toggle -->
   <label class="switch">
-    <input type="checkbox" id="themeToggle">
+    <input type="checkbox" id="themeToggle" name="darkModeToggle">
     <span class="slider"></span>
   </label>
+  <h1 id="appTitle">PaintUp</h1>
 
-  <h1>PaintUp</h1>
+  <div class="input-group">
+    <select id="language" name="appLanguage">
+      <option value="en">English</option>
+      <option value="es">Español</option>
+      <option value="fr">Français</option>
+      <option value="hi">हिन्दी</option>
+      <option value="bn">বাংলা</option>
+      <option value="te">తెలుగు</option>
+      <option value="mr">मराठी</option>
+      <option value="ta">தமிழ்</option>
+      <option value="gu">ગુજરાતી</option>
+      <option value="kn">ಕನ್ನಡ</option>
+      <option value="or">ଓଡ଼ିଆ</option>
+      <option value="ml">മലയാളം</option>
+      <option value="pa">ਪੰਜਾਬੀ</option>
+      <option value="as">অসমীয়া</option>
+    </select>
+    <select id="currency" name="currencyType">
+      <option value="₹">INR (₹)</option>
+      <option value="$">USD ($)</option>
+      <option value="€">EUR (€)</option>
+    </select>
+    <select id="unit" name="areaUnit">
+      <option value="sq.ft">sq.ft</option>
+      <option value="m²">m²</option>
+    </select>
+  </div>
 
-  <!-- Rooms Section -->
-  <div id="roomsContainer" class="input-group">
-    <div class="input-item">
-      <span class="icon">📏</span>
-      <label>Area (sq.ft)</label>
-      <input type="number" class="area" placeholder="Area" min="0">
-    </div>
-    <div class="input-item">
-      <span class="icon">💰</span>
-      <label>Discount (%)</label>
-      <input type="number" class="discount" value="0" min="0" max="100">
-    </div>
-    <div class="input-item">
-      <span class="icon">🎨</span>
-      <label>Paint Type</label>
-      <select class="paintTypeRoom">
-        <option value="50">Standard ₹50/sq.ft</option>
-        <option value="80">Premium ₹80/sq.ft</option>
-        <option value="120">Luxury ₹120/sq.ft</option>
+  <div id="roomsContainer">
+    <div class="room-card">
+      <button class="delete-btn" onclick="deleteRoom(this)" name="deleteRoomBtn">Delete</button>
+      <input type="number" name="roomArea" class="area" step="0.01" min="0">
+      <input type="number" name="roomDiscount" class="discount" value="0" step="0.01" min="0" max="100">
+      <select name="roomPaintType" class="paintTypeRoom">
+        <option value="50">Standard</option>
+        <option value="80">Premium</option>
+        <option value="120">Luxury</option>
       </select>
+      <span class="roomTotal" name="roomTotal">Room Cost: 0</span>
     </div>
   </div>
 
-  <!-- Buttons -->
   <div class="input-group buttons">
-    <button onclick="addRoom()">+ Add Room</button>
-    <button onclick="removeRoom()">- Remove Room</button>
-    <button onclick="clearAll()">Clear All</button>
-    <button onclick="exportPDF()">Export PDF</button>
+    <button class="main-btn" onclick="addRoom()" name="addRoom">+ Add Room</button>
+    <button class="main-btn" onclick="clearAll()" name="clearAll">Clear All</button>
+    <button class="main-btn" onclick="resetDefaults()" name="resetDefaults">Reset Defaults</button>
+    <button class="main-btn" onclick="exportPDF()" name="exportPDF">Export PDF</button>
   </div>
 
-  <!-- Extra Inputs -->
-  <div class="input-group extra-inputs">
-    <div class="input-item">
-      <span class="icon">🛠️</span>
-      <label>Labor Charge per sq.ft</label>
-      <input type="number" id="labor" value="20">
-    </div>
-    <div class="input-item">
-      <span class="icon">🧾</span>
-      <label>GST (%)</label>
-      <input type="number" id="tax" value="18">
-    </div>
-    <div class="input-item">
-      <span class="icon">🖌️</span>
-      <label>Paint Coverage per Liter</label>
-      <input type="number" id="coverage" value="100">
-    </div>
+  <div class="room-card">
+    <input type="number" name="laborCharge" id="labor" value="20" step="0.01">
+    <input type="number" name="gstPercent" id="tax" value="18" step="0.01">
+    <input type="number" name="paintCoveragePerLiter" id="coverage" value="100" step="0.01">
   </div>
 
-  <!-- Result -->
-  <div id="result" class="result">Total Painting Cost: ₹0.00</div>
-  <footer>© PaintUp 2025</footer>
+  <div id="result" class="result">Total Painting Cost: 0</div>
+  <footer id="footer">© Manik Roy 2025. All Rights Reserved.</footer>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function(){
-  const roomsContainer=document.getElementById('roomsContainer');
-  const laborInput=document.getElementById('labor');
-  const taxInput=document.getElementById('tax');
-  const coverageInput=document.getElementById('coverage');
-  const resultDiv=document.getElementById('result');
-  const themeToggle=document.getElementById('themeToggle');
-
-  themeToggle.addEventListener('change',()=>document.body.setAttribute('data-theme',themeToggle.checked?'dark':'light'));
-
-  function attachListeners(){
-    document.querySelectorAll('.area').forEach(a=>a.addEventListener('input',calculateCost));
-    document.querySelectorAll('.discount').forEach(d=>d.addEventListener('input',calculateCost));
-    document.querySelectorAll('.paintTypeRoom').forEach(p=>p.addEventListener('input',calculateCost));
-  }
-
-  function addRoom(){
-    const roomDiv=document.createElement('div');
-    roomDiv.classList.add('input-item');
-    roomDiv.innerHTML=`
-      <span class="icon">📏</span>
-      <label>Area (sq.ft)</label>
-      <input type="number" class="area" placeholder="Area" min="0">
-      <span class="icon">💰</span>
-      <label>Discount (%)</label>
-      <input type="number" class="discount" value="0" min="0" max="100">
-      <span class="icon">🎨</span>
-      <label>Paint Type</label>
-      <select class="paintTypeRoom">
-        <option value="50">Standard ₹50/sq.ft</option>
-        <option value="80">Premium ₹80/sq.ft</option>
-        <option value="120">Luxury ₹120/sq.ft</option>
-      </select>`;
-    roomsContainer.appendChild(roomDiv);
-    attachListeners();
-    calculateCost();
-  }
-
-  function removeRoom(){
-    const items=document.querySelectorAll('#roomsContainer .input-item');
-    if(items.length>1) roomsContainer.removeChild(items[items.length-1]);
-    calculateCost();
-  }
-
-  function clearAll(){
-    document.querySelectorAll('.area').forEach(a=>a.value='');
-    document.querySelectorAll('.discount').forEach(d=>d.value=0);
-    document.querySelectorAll('.paintTypeRoom').forEach(p=>p.selectedIndex=0);
-    laborInput.value=20;
-    taxInput.value=18;
-    coverageInput.value=100;
-    calculateCost();
-  }
-
-  function calculateCost(){
-    const areas=document.querySelectorAll('.area');
-    const discounts=document.querySelectorAll('.discount');
-    const paints=document.querySelectorAll('.paintTypeRoom');
-    const labor=parseFloat(laborInput.value)||0;
-    const gst=parseFloat(taxInput.value)||0;
-    const coverage=parseFloat(coverageInput.value)||100;
-    let totalMat=0,totalLab=0,totalLiters=0;
-    areas.forEach((a,i)=>{
-      const area=parseFloat(a.value)||0;
-      const discount=parseFloat(discounts[i].value)||0;
-      const rate=parseFloat(paints[i].value)||50;
-      const netArea=area*(1-discount/100);
-      totalMat+=netArea*rate;
-      totalLab+=netArea*labor;
-      totalLiters+=netArea/coverage;
-    });
-    const totalCost=(totalMat+totalLab)*(1+gst/100);
-    const roundedLiters=Math.ceil(totalLiters);
-    resultDiv.innerHTML=`
-      Total Painting Cost: ₹${totalCost.toFixed(2)}<br>
-      Material: ₹${totalMat.toFixed(2)}, Labor: ₹${totalLab.toFixed(2)}, GST: ₹${((totalMat+totalLab)*gst/100).toFixed(2)}<br>
-      Total Paint Required: ${roundedLiters} liters
-    `;
-  }
-
-  function exportPDF(){
-    const { jsPDF }=window.jspdf;
-    const doc=new jsPDF();
-    doc.setFontSize(14);
-    doc.text("Painting Estimate",20,20);
-    doc.setFontSize(12);
-    doc.text(resultDiv.innerText,20,30);
-    doc.save("painting_estimate.pdf");
-  }
-
-  attachListeners();
-  laborInput.addEventListener('input',calculateCost);
-  taxInput.addEventListener('input',calculateCost);
-  coverageInput.addEventListener('input',calculateCost);
-  calculateCost();
-
-  window.addRoom=addRoom;
-  window.removeRoom=removeRoom;
-  window.clearAll=clearAll;
-  window.exportPDF=exportPDF;
+// Dark/Light mode toggle
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.addEventListener('change', () => {
+  document.body.dataset.theme = themeToggle.checked ? 'dark' : 'light';
 });
+
+// Add room
+function addRoom(){
+  const container = document.getElementById('roomsContainer');
+  const room = document.createElement('div');
+  room.className = 'room-card';
+  room.innerHTML = `
+    <button class="delete-btn" onclick="deleteRoom(this)" name="deleteRoomBtn">Delete</button>
+    <input type="number" name="roomArea" class="area" step="0.01" min="0">
+    <input type="number" name="roomDiscount" class="discount" value="0" step="0.01" min="0" max="100">
+    <select name="roomPaintType" class="paintTypeRoom">
+      <option value="50">Standard</option>
+      <option value="80">Premium</option>
+      <option value="120">Luxury</option>
+    </select>
+    <span class="roomTotal" name="roomTotal">Room Cost: 0</span>
+  `;
+  container.appendChild(room);
+}
+
+// Delete room
+function deleteRoom(btn){
+  btn.parentElement.remove();
+  calculateCost();
+}
+
+// Clear all inputs
+function clearAll(){
+  document.querySelectorAll('.area').forEach(i=>i.value=0);
+  document.querySelectorAll('.discount').forEach(i=>i.value=0);
+  document.querySelectorAll('.paintTypeRoom').forEach(i=>i.value='50');
+  document.getElementById('labor').value=0;
+  document.getElementById('tax').value=0;
+  document.getElementById('coverage').value=0;
+  calculateCost();
+}
+
+// Reset defaults
+function resetDefaults(){
+  document.querySelectorAll('.area').forEach(i=>i.value=0);
+  document.querySelectorAll('.discount').forEach(i=>i.value=0);
+  document.querySelectorAll('.paintTypeRoom').forEach(i=>i.value='50');
+  document.getElementById('labor').value = 20;
+  document.getElementById('tax').value = 18;
+  document.getElementById('coverage').value = 100;
+  calculateCost();
+}
+
+// Calculate total cost and room-wise cost
+function calculateCost(){
+  const labor = parseFloat(document.getElementById('labor').value) || 0;
+  const gst = parseFloat(document.getElementById('tax').value) || 0;
+  const coverage = parseFloat(document.getElementById('coverage').value) || 1;
+
+  let total = 0;
+  document.querySelectorAll('#roomsContainer .room-card').forEach(room=>{
+    const area = parseFloat(room.querySelector('.area').value) || 0;
+    const discount = parseFloat(room.querySelector('.discount').value) || 0;
+    const paintCost = parseFloat(room.querySelector('.paintTypeRoom').value) || 0;
+    let roomCost = ((area / coverage) * paintCost) + (area * labor);
+    roomCost -= roomCost * (discount/100);
+    total += roomCost;
+    const roomTotalSpan = room.querySelector('.roomTotal');
+    if(roomTotalSpan) roomTotalSpan.innerText = 'Room Cost: ' + roomCost.toFixed(2);
+  });
+
+  total += total * (gst/100);
+  document.getElementById('result').innerText = 'Total Painting Cost: ' + total.toFixed(2);
+}
+
+// Recalculate on input change
+document.addEventListener('input', calculateCost);
+
+// Export PDF
+function exportPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.text(document.getElementById('appTitle').innerText, 10, 10);
+  document.querySelectorAll('#roomsContainer .room-card').forEach((room, i)=>{
+    const area = room.querySelector('.area').value;
+    const discount = room.querySelector('.discount').value;
+    const paint = room.querySelector('.paintTypeRoom').value;
+    const cost = room.querySelector('.roomTotal').innerText;
+    doc.text(`Room ${i+1}: Area=${area}, Discount=${discount}, PaintType=${paint}, ${cost}`, 10, 20+(i*10));
+  });
+  doc.text(document.getElementById('result').innerText, 10, 30+(document.querySelectorAll('#roomsContainer .room-card').length*10));
+  doc.save('PaintUp_Cost.pdf');
+}
 </script>
 </body>
 </html>
